@@ -1,15 +1,24 @@
 package delta.games.sudoku;
 
 import java.io.File;
+import java.net.URL;
 
 import delta.common.utils.files.TextFileReader;
+import delta.common.utils.text.EncodingNames;
+import delta.common.utils.url.URLTools;
 
-public abstract class SudokuFileReader
+public abstract class SudokuReader
 {
   public static SudokuGrid readFile(File f)
   {
+    URL url=URLTools.buildFileURL(f);
+    return from(url);
+  }
+
+  public static SudokuGrid from(URL url)
+  {
     SudokuGrid grid=null;
-    TextFileReader reader=new TextFileReader(f);
+    TextFileReader reader=new TextFileReader(url, EncodingNames.UTF_8);
     if (reader.start())
     {
       grid=new SudokuGrid();

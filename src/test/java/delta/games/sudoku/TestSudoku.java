@@ -1,10 +1,11 @@
 package delta.games.sudoku;
 
 import java.io.File;
+import java.net.URL;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import delta.common.utils.environment.FileSystem;
+import delta.common.utils.url.URLTools;
 
 public class TestSudoku extends TestCase
 {
@@ -36,30 +37,26 @@ public class TestSudoku extends TestCase
 
   public void testReadSudoku()
   {
-    File rootDir=getSudokuTestDataDir();
-    File f=new File(rootDir,"testSudoku.txt");
-    SudokuGrid grid=SudokuFileReader.readFile(f);
+    SudokuGrid grid=loadGrid("testSudokuFacile");
     Assert.assertNotNull(grid);
     grid.dump(System.out);
   }
 
   public void testSolveSudoku()
   {
-    File rootDir=getSudokuTestDataDir();
-    File f=new File(rootDir,"testSudoku.txt");
-    SudokuGrid grid=SudokuFileReader.readFile(f);
+    SudokuGrid grid=loadGrid("testSudokuFacile");
     Assert.assertNotNull(grid);
     grid.dump(System.out);
     SudokuSolver solver=new SudokuSolver();
     solver.solve(grid);
   }
 
-  private File getSudokuTestDataDir()
+  private static SudokuGrid loadGrid(String gridName)
   {
-    File testDataDir=FileSystem.getTestDataDir();
-    File gamesDir=new File(testDataDir,"games");
-    File sudokuDir=new File(gamesDir,"sudoku");
-    return sudokuDir;
+    URL url=URLTools.getFromClassPath(gridName+".txt", TestSudoku.class.getPackage());
+    SudokuGrid grid=SudokuReader.from(url);
+    Assert.assertNotNull(grid);
+    return grid;
   }
 
   public void testDump()
