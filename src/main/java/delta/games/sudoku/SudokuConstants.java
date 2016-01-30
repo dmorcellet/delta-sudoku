@@ -1,9 +1,17 @@
 package delta.games.sudoku;
 
+/**
+ * Constants for the sudoku solver.
+ * @author DAM
+ */
 public class SudokuConstants
 {
-	public static final int GRID_SIZE=3;
-	public static final int GRID_CELLS=GRID_SIZE*GRID_SIZE;
-  public static final int VALUES_MASK=(1<<SudokuConstants.GRID_CELLS)-1;
-  public static final int CELLS_MASK=(1<<SudokuConstants.GRID_CELLS)-1;
+  /**
+   * Size of grids.
+   */
+  public static final int GRID_SIZE=3;
+  /**
+   * Number of cell in each grid.
+   */
+  public static final int GRID_CELLS=GRID_SIZE*GRID_SIZE;
 }

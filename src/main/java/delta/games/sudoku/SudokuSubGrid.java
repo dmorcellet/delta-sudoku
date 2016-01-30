@@ -1,182 +1,204 @@
 package delta.games.sudoku;
 
+/**
+ * Sudoku sub-grid.
+ * @author DAM
+ */
 public class SudokuSubGrid
 {
-  // Positions (-1, 0..GRID_CELLS-1) <- Values (0..GRID_CELLS-1)
-  private int[] _positions;
-  // Values (0..GRID_CELLS) <- Positions (0..GRID_CELLS-1)
-  private int[] _values;
+  private SudokuCell[][] _cells;
 
   /**
-   * For each position, bit set that indicates the possible values.
-   * <code>_possibleValues[y*GRID_CELLS+x] & (2^value-1)</code> is zero if
-   * <code>value</code> is not possible for cell <code>(x,y)</code>.
+   * Constructor.
    */
-  private int[] _possibleValues;
-
-  /**
-   * For each value, bit set that indicates the possible cells.
-   * <code>__possibleCells[value-1] & (2^(y*GRID_CELLS+x))</code> is zero if
-   * cell <code>(x,y)</code> is not possible for value <code>value</code>.
-   */
-  private int[] _possibleCells;
-
   public SudokuSubGrid()
   {
-    _positions=new int[SudokuConstants.GRID_CELLS];
-    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
+    _cells=new SudokuCell[SudokuConstants.GRID_SIZE][];
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
     {
-      _positions[i]=-1;
+      _cells[i]=new SudokuCell[SudokuConstants.GRID_SIZE];
+      for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
+      {
+        _cells[i][j]=new SudokuCell(i,j);
+      }
     }
-    _values=new int[SudokuConstants.GRID_CELLS];
-    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
-    {
-      _values[i]=0;
-    }
-    _possibleValues=new int[SudokuConstants.GRID_CELLS];
-    int allPossibleValues=SudokuConstants.VALUES_MASK;
-    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
-    {
-      _possibleValues[i]=allPossibleValues;
-    }
-    _possibleCells=new int[SudokuConstants.GRID_CELLS];
-    int allPossibleCells=SudokuConstants.CELLS_MASK;
-    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
-    {
-      _possibleCells[i]=allPossibleCells;
-    }
-  }
-
-  public int getValueForCell(int x, int y)
-  {
-    return _values[y*SudokuConstants.GRID_SIZE+x];
   }
 
   /**
-   * Get the position for a given value.
-   * @param value Value to search (1..GRID_CELLS)
-   * @return 0..GRID_CELLS-1 if found, -1 otherwise.
+   * Get the value for a cell.
+   * @param x Horizontal index for cell (starting at 0).
+   * @param y Vertical index for cell (starting at 0).
+   * @return A value or <code>null</code> if not set.
    */
-  public int getPositionForValue(int value)
+  public Integer getValueForCell(int x, int y)
   {
-    return _positions[value-1];
+    Integer value=_cells[x][y].getValue();
+    return value;
   }
 
+  /**
+   * Get the cell for a given value.
+   * @param value Value to search (1..GRID_CELLS)
+   * @return A cell or <code>null</code> if not found.
+   */
+  public SudokuCell getPositionForValue(int value)
+  {
+    SudokuCell ret=null;
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
+    {
+      for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
+      {
+        SudokuCell cell=_cells[i][j];
+        Integer cellValue=cell.getValue();
+        if ((cellValue!=null) && (cellValue.intValue()==value))
+        {
+          ret=cell;
+          break;
+        }
+      }
+      if (ret!=null)
+      {
+        break;
+      }
+    }
+    return ret;
+  }
+
+  /**
+   * Indicates if the given value is placed in this sub-grid.
+   * @param value Value to test.
+   * @return <code>true</code> if it is, <code>false</code> otherwise.
+   */
   public boolean isValuePlaced(int value)
   {
-    return (_positions[value-1]!=-1);
+    return (getPositionForValue(value)!=null);
   }
 
+  /**
+   * Indicates if a horizontal line contains the given value.
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to search.
+   * @return <code>true</code> if it does, <code>false</code> otherwise.
+   */
   public boolean hLineContains(int y, int value)
   {
-    int index=SudokuConstants.GRID_SIZE*y;
     for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
     {
-      if (_values[index+i]==value) return true;
+      Integer cellValue=_cells[i][y].getValue();
+      if ((cellValue!=null) && (cellValue.intValue()==value))
+      {
+        return true;
+      }
     }
     return false;
   }
 
+  /**
+   * Indicates if a vertical line contains the given value.
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param value Value to search.
+   * @return <code>true</code> if it does, <code>false</code> otherwise.
+   */
   public boolean vLineContains(int x, int value)
   {
-    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
+    for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
     {
-      if (_values[i*SudokuConstants.GRID_SIZE+x]==value) return true;
+      Integer cellValue=_cells[x][j].getValue();
+      if ((cellValue!=null) && (cellValue.intValue()==value))
+      {
+        return true;
+      }
     }
     return false;
   }
 
+  /**
+   * Set the value for a cell.
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to set.
+   * @return <code>true</code> if it succeeded, <code>false</code> otherwise.
+   */
   public boolean setValueForCell(int x, int y, int value)
   {
-    int pos=getPositionForValue(value);
-    int index=SudokuConstants.GRID_SIZE*y+x;
-    if (pos!=-1) return false;
+    SudokuCell pos=getPositionForValue(value);
+    if (pos!=null) return false;
 
-    _positions[value-1]=index;
-    _values[index]=value;
-    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
+    _cells[x][y].setValue(Integer.valueOf(value));
+    // Disable value in all other cells
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
     {
-      _possibleValues[i]&=(~(1<<(value-1)));
+      for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
+      {
+        if ((i!=x) || (j!=y))
+        {
+          _cells[i][j].disableValue(value);
+        }
+      }
     }
-    // Disable all values for this cell
-    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
-    {
-      _possibleCells[i]&=(~(1<<index));
-    }
-    _possibleValues[index]=0;
-    _possibleCells[value-1]=0;
     return true;
   }
 
+  /**
+   * Disable a value in a child cell.
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to disable.
+   */
   public void disableChoice(int x, int y, int value)
   {
-    int index=SudokuConstants.GRID_SIZE*y+x;
-    _possibleValues[index]&=(~(1<<(value-1)));
-    _possibleCells[value-1]&=(~(1<<index));
+    _cells[x][y].disableValue(value);
   }
 
+  /**
+   * Indicates if a value is possible in a child cell.
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to test.
+   * @return <code>true</code> it this value is possible, <code>false</code> otherwise.
+   */
   public boolean isPossible(int x, int y, int value)
   {
-    int index=SudokuConstants.GRID_SIZE*y+x;
-    return (((_possibleValues[index])&(1<<(value-1)))!=0);
+    return _cells[x][y].isValuePossible(value);
   }
 
   /**
    * Tests whether a value can be found for cell x,y.
    * @param x Horizontal cell coordinate.
    * @param y Vertical cell coordinate.
-   * @return -1 is no value can be found, or the value (1..GRID_CELLS) that can
+   * @return <code>null</code> is no value can be found, or the value (1..GRID_CELLS) that can
    * be used at x,y.
    */
-  public int getDecidableValue(int x, int y)
+  public Integer getDecidableValue(int x, int y)
   {
-    int nb=0;
-    int index=SudokuConstants.GRID_SIZE*y+x;
-    if (_values[index]>0) return -1;
-    int choices=_possibleValues[index];
-    int value=-1;
-    int mask=1;
-    for(int k=0;k<SudokuConstants.GRID_CELLS;k++)
-    {
-      if ((choices&mask)!=0)
-      {
-        //System.out.println("Value "+(k+1)+" is possible at ("+x+","+y+")");
-        if (nb==1)
-        {
-          //System.out.println("Already found a value there. Skip it.");
-          return -1;
-        }
-        nb++;
-        value=k+1;
-      }
-      mask<<=1;
-    }
-    return value;
+    return _cells[x][y].getDecidableValue();
   }
 
-  public int getDecidableCell(int value)
+  /**
+   * Indicates if a single cell is candidate for the given value.
+   * @param value Value to test.
+   * @return <code>null</code> if there is not such candidate, otherwise
+   * the selected cell.
+   */
+  public SudokuCell getDecidableCell(int value)
   {
-    int nb=0;
-    if (_positions[value-1]>=0) return -1;
-    int choices=_possibleCells[value-1];
-    int cell=-1;
-    int mask=1;
-    for(int k=0;k<SudokuConstants.GRID_CELLS;k++)
+    SudokuCell cell=null;
+    int nbCellsForValue=0;
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
     {
-      if ((choices&mask)!=0)
+      for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
       {
-        System.out.println("Cell "+k+" is possible for value "+value);
-        if (nb==1)
+        if (_cells[i][j].isValuePossible(value))
         {
-          System.out.println("Already found a cell for this value. Skip it.");
-          return -1;
+          cell=_cells[i][j];
+          nbCellsForValue++;
         }
-        nb++;
-        cell=k;
       }
-      mask<<=1;
     }
-    System.out.println("Cell "+cell+" has value "+value);
-    return cell;
+    if (nbCellsForValue==1)
+    {
+      return cell;
+    }
+    return null;
   }
 }

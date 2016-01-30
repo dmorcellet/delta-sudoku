@@ -1,15 +1,26 @@
 package delta.games.sudoku;
 
+/**
+ * Solver for sudoku grids.
+ * @author DAM
+ */
 public class SudokuSolver
 {
+  /**
+   * Constructor.
+   */
   public SudokuSolver()
   {
     // Nothing to do
   }
 
+  /**
+   * Solve a grid.
+   * @param grid Grid to solve.
+   */
   public void solve(SudokuGrid grid)
   {
-    grid.dumpChoices(System.out);
+    //grid.dumpChoices(System.out);
     int nbFound;
     do
     {
@@ -36,25 +47,28 @@ public class SudokuSolver
     {
       for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
       {
-        int value=subGrid.getDecidableValue(i,j);
-        if (value>0)
+        Integer value=subGrid.getDecidableValue(i,j);
+        if (value!=null)
         {
-          grid.setValueForCell(bigX,bigY,i,j,value);
+          grid.setValueForCell(bigX,bigY,i,j,value.intValue());
           System.out.println("bigX="+bigX+",bigY="+bigY+",x="+i+",y="+j+" -> "+value);
           grid.dumpChoices(System.out);
           grid.dump(System.out);
-          return value;
+          return value.intValue();
         }
       }
     }
 
     for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
     {
-      System.out.println("Examining value "+(i+1)+" in subgrid "+bigX+","+bigY);
-      int cell=subGrid.getDecidableCell(i+1);
-      if (cell>=0)
+      //System.out.println("Examining value "+(i+1)+" in subgrid "+bigX+","+bigY);
+      SudokuCell cell=subGrid.getDecidableCell(i+1);
+      if (cell!=null)
       {
-        grid.setValueForCell(bigX,bigY,cell%SudokuConstants.GRID_SIZE,cell/SudokuConstants.GRID_SIZE,i+1);
+        int x=cell.getX();
+        int y=cell.getY();
+        grid.setValueForCell(bigX,bigY,x,y,i+1);
+        System.out.println("bigX="+bigX+",bigY="+bigY+",x="+x+",y="+y+" -> "+(i+1));
         grid.dumpChoices(System.out);
         grid.dump(System.out);
         return i+1;

@@ -7,14 +7,28 @@ import delta.common.utils.files.TextFileReader;
 import delta.common.utils.text.EncodingNames;
 import delta.common.utils.url.URLTools;
 
+/**
+ * Reader for sudoku grids.
+ * @author DAM
+ */
 public abstract class SudokuReader
 {
+  /**
+   * Read grid from a file.
+   * @param f File to use.
+   * @return the read grid.
+   */
   public static SudokuGrid readFile(File f)
   {
     URL url=URLTools.buildFileURL(f);
     return from(url);
   }
 
+  /**
+   * Read grid from an URL.
+   * @param url URL to use.
+   * @return the read grid.
+   */
   public static SudokuGrid from(URL url)
   {
     SudokuGrid grid=null;
