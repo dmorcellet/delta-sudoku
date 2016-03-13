@@ -121,6 +121,49 @@ public class SudokuGrid
   }
 
   /**
+   * Set the value for a cell.
+   * @param bigX Horizontal index for sub-grid (starting at 0).
+   * @param bigY Vertical index for sub-grid (starting at 0).
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to set.
+   * @return <code>true</code> if it succeeded, <code>false</code> otherwise.
+   */
+  public boolean clearValueForCell(int bigX, int bigY, int x, int y, int value)
+  {
+    SudokuSubGrid grid=getGrid(bigX,bigY);
+    boolean ok=grid.clearValueForCell(x,y,value);
+    if (!ok) return false;
+
+    // Update choices
+    // Handle horizontal line
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
+    {
+      if (i!=bigX)
+      {
+        SudokuSubGrid tmp=getGrid(i,bigY);
+        for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
+        {
+          tmp.enableChoice(j,y,value);
+        }
+      }
+    }
+    // Handle vertical line
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
+    {
+      if (i!=bigY)
+      {
+        SudokuSubGrid tmp=getGrid(bigX,i);
+        for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
+        {
+          tmp.enableChoice(x,j,value);
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
    * Dump grid contents to the given output stream.
    * @param ps Output stream.
    */

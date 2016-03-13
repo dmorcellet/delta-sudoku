@@ -6,6 +6,28 @@ package delta.games.sudoku;
  */
 public class SudokuSolver
 {
+  /*
+  private Stack<SudokuAction> _actions;
+
+  private class SudokuAction
+  {
+    private int _bigX;
+    private int _bigY;
+    private int _x;
+    private int _y;
+    private int _value;
+
+    public SudokuAction(int bigX, int bigY, int x, int y, int value)
+    {
+      _bigX=bigX;
+      _bigY=bigY;
+      _x=x;
+      _y=y;
+      _value=value;
+    }
+  }
+  */
+
   /**
    * Constructor.
    */

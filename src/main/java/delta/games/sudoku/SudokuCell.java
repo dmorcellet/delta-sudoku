@@ -9,8 +9,8 @@ public class SudokuCell
   // A null value indicates an undecided cell value
   // otherwise _value.intValue() gives the value of the cell.
   private Integer _value;
-  // _possibleValues[i-1] indicates if value i is possible for this cell.
-  private boolean[] _possibleValues;
+  // _possibleValues[i-1] indicates the number of cells blocking the value.
+  private int[] _possibleValues;
 
   private int _x;
   private int _y;
@@ -24,10 +24,10 @@ public class SudokuCell
   {
     _x=x;
     _y=y;
-    _possibleValues=new boolean[SudokuConstants.GRID_CELLS];
+    _possibleValues=new int[SudokuConstants.GRID_CELLS];
     for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
     {
-      _possibleValues[i]=true;
+      _possibleValues[i]=0;
     }
   }
 
@@ -50,16 +50,38 @@ public class SudokuCell
   }
 
   /**
+   * Reset the value of this cell.
+   * @param value Value to set.
+   */
+  public void clearValue(int value)
+  {
+    _value=null;
+    for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
+    {
+      _possibleValues[i]--;
+    }
+  }
+
+  /**
    * Set the value of this cell.
    * @param value Value to set.
    */
-  public void setValue(Integer value)
+  public void setValue(int value)
   {
-    _value=value;
+    _value=Integer.valueOf(value);
     for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
     {
-      _possibleValues[i]=(value==null);
+      _possibleValues[i]++;
     }
+  }
+
+  /**
+   * Enable a value for this cell.
+   * @param value Value to enable (starting at 1).
+   */
+  public void enableValue(int value)
+  {
+    _possibleValues[value-1]--;
   }
 
   /**
@@ -68,7 +90,7 @@ public class SudokuCell
    */
   public void disableValue(int value)
   {
-    _possibleValues[value-1]=false;
+    _possibleValues[value-1]++;
   }
 
   /**
@@ -87,7 +109,7 @@ public class SudokuCell
    */
   public boolean isValuePossible(int value)
   {
-    return _possibleValues[value-1];
+    return _possibleValues[value-1]==0;
   }
 
   /**
@@ -99,7 +121,7 @@ public class SudokuCell
     int ret=0;
     for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
     {
-      if (_possibleValues[i])
+      if (_possibleValues[i]==0)
       {
         ret++;
       }
@@ -118,7 +140,7 @@ public class SudokuCell
     int nbPossibleValues=0;
     for(int i=0;i<SudokuConstants.GRID_CELLS;i++)
     {
-      if (_possibleValues[i])
+      if (_possibleValues[i]==0)
       {
         value=i+1;
         nbPossibleValues++;

@@ -124,7 +124,7 @@ public class SudokuSubGrid
     SudokuCell pos=getPositionForValue(value);
     if (pos!=null) return false;
 
-    _cells[x][y].setValue(Integer.valueOf(value));
+    _cells[x][y].setValue(value);
     // Disable value in all other cells
     for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
     {
@@ -137,6 +137,47 @@ public class SudokuSubGrid
       }
     }
     return true;
+  }
+
+  /**
+   * Set the value for a cell.
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to set.
+   * @return <code>true</code> if it succeeded, <code>false</code> otherwise.
+   */
+  public boolean clearValueForCell(int x, int y, int value)
+  {
+    Integer oldValue=_cells[x][y].getValue();
+    if ((oldValue==null) || (oldValue.intValue()!=value))
+    {
+      return false;
+    }
+
+    _cells[x][y].clearValue(value);
+    // Enable value in all other cells
+    for(int i=0;i<SudokuConstants.GRID_SIZE;i++)
+    {
+      for(int j=0;j<SudokuConstants.GRID_SIZE;j++)
+      {
+        if ((i!=x) || (j!=y))
+        {
+          _cells[i][j].enableValue(value);
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Enable a value in a child cell.
+   * @param x Horizontal index inside this sub-grid (starting at 0).
+   * @param y Vertical index inside this sub-grid (starting at 0).
+   * @param value Value to disable.
+   */
+  public void enableChoice(int x, int y, int value)
+  {
+    _cells[x][y].enableValue(value);
   }
 
   /**
