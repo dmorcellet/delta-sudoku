@@ -65,7 +65,7 @@ public class TestSudoku extends TestCase
 
   private static SudokuGrid loadGrid(String gridName)
   {
-    URL url=URLTools.getFromClassPath(gridName+".txt",TestSudoku.class.getPackage());
+    URL url=URLTools.getFromClassPath(gridName+".txt",TestSudoku.class);
     SudokuGrid grid=SudokuReader.from(url);
     Assert.assertNotNull(grid);
     return grid;
